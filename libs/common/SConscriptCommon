@@ -1,6 +1,6 @@
 Import('env')
 
-sourceFiles = ['network/network-engine.cpp', 'network/network-client.cpp']
+sourceFiles = []
 
 libs = ['libboost_system']
 

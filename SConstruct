@@ -4,6 +4,8 @@ env = Environment() # Initialize the SCons environment.
 
 env['ENV']['TERM'] = os.environ['TERM'] # Do accept clang color.
 
+env['CXX'] = 'clang++'
+
 env['CXXFLAGS'] = '-std=c++11 -g'
 
 Export('env')

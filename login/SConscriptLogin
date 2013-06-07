@@ -1,6 +1,6 @@
 Import('env')
 
-sourceFiles = ['main.cpp']
+sourceFiles = ['main.cpp', 'login-packet-handler.cpp']
 
 libs = ['libboost_system', 'libcommon']
 

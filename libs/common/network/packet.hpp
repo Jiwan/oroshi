@@ -5,6 +5,8 @@
 #include <tuple>
 #include <memory>
 
+#define OROSHI_PROTOCOL_VERSION 0
+
 namespace oroshi
 {
 namespace common
@@ -15,7 +17,7 @@ namespace network
     class PacketHeader
     {
         public:
-        PacketHeader(): size_(0), command_(0), protocolVersion_(0)
+        PacketHeader(): size_(0), command_(0), protocolVersion_(OROSHI_PROTOCOL_VERSION)
         {
 
         }

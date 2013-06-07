@@ -2,7 +2,6 @@
 #define LOG_H
 
 #include <cstdint>
-#include <chrono>
 #include <ctime>
 #include <iomanip>
 

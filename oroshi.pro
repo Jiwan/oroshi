@@ -10,15 +10,15 @@ CXXFLAGS += -std=c++11
 
 # lib common
 SOURCES += \
-    libs/common/network/network-engine.cpp \
-    libs/common/network/network-client.cpp \
-    login/main.cpp
+    login/main.cpp \
+    login/login-packet-handler.cpp
 
 HEADERS += \
     libs/common/network/network-engine.hpp \
     libs/common/network/network-client.hpp \
     libs/common/network/packet.hpp \
-    libs/common/utils/log.hpp
+    libs/common/utils/log.hpp \
+    login/login-packet-handler.hpp
 
 OTHER_FILES += \
     SConstruct \
