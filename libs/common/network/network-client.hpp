@@ -91,7 +91,9 @@ namespace network
                 return;
             }
 
-            auto status = PacketHandler::handle(std::make_tuple(std::move(currentHeader_), packetBody));
+            auto packet = std::make_tuple(std::move(currentHeader_), packetBody);
+
+            auto status = PacketHandler::handle(packet);
 
             socket_.async_receive(boost::asio::buffer(currentHeader_.data(), 6),
                                   std::bind(&NetworkClient<PacketHandler>::handlePacketHeader,
