@@ -1,0 +1,12 @@
+Import('env')
+
+sourceFiles = ['main.cpp']
+
+libs = ['libboost_system', 'libcommon']
+
+libsPath = ['./thirdparty/boost_1_53_0/stage/lib', '../libs/common']
+
+headersPath = ['./thirdparty/boost_1_53_0', '../../libs/']
+
+env.Program(target = 'login',  source = sourceFiles, CPPPATH=headersPath, LIBPATH = libsPath, LIBS = libs)
+

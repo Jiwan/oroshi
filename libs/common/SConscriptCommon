@@ -1,0 +1,11 @@
+Import('env')
+
+sourceFiles = ['network/network-engine.cpp', 'network/network-client.cpp']
+
+libs = ['libboost_system']
+
+libsPath = ['./thirdparty/boost_1_53_0/stage/lib']
+
+headersPath =['./thirdparty/boost_1_53_0']
+
+env.StaticLibrary(target = 'common',  source = sourceFiles, CPPPATH=headersPath, LIBPATH = libsPath, LIBS = libs)
