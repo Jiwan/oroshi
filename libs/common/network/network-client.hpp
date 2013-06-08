@@ -29,7 +29,13 @@ namespace network
             boost::asio::ip::tcp::no_delay optionNoDelay(true);
             socket_.set_option(optionNoDelay);
 
-            socket_.async_receive(boost::asio::buffer(currentHeader_.data(), 6), bind(&NetworkClient::handlePacketHeader, this, std::placeholders::_1, std::placeholders::_2));
+            auto packetHeader = std::make_shared<PacketHeader>();
+
+            socket_.async_receive(boost::asio::buffer(packetHeader->data(), 6), bind(&NetworkClient::handlePacketHeader,
+                                                                                      this,
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2,
+                                                                                      packetHeader));
         }
 
         void close()
@@ -43,7 +49,7 @@ namespace network
         }
 
         private:
-        void handlePacketHeader(const boost::system::error_code& error, size_t bytesTransfered)
+        void handlePacketHeader(const boost::system::error_code& error, size_t bytesTransfered, std::shared_ptr<PacketHeader> packetHeader)
         {
             if (error)
             {
@@ -62,18 +68,19 @@ namespace network
             }
 
             // Allocate memory for the incoming packet body.
-            std::shared_ptr<char> packetBody(new char[currentHeader_.size()], std::default_delete<char[]>());
+            std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
 
             // Let's receive the packet body according to the header.
-            socket_.async_receive(boost::asio::buffer(packetBody.get(), currentHeader_.size()), std::bind(&NetworkClient<PacketHandler>::handlePacketBody,
+            socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler>::handlePacketBody,
                                                                                               this,
                                                                                               std::placeholders::_1,
                                                                                               std::placeholders::_2,
-                                                                                              packetBody
+                                                                                              packetBody,
+                                                                                              packetHeader
                                                                                               ));
         }
 
-        void handlePacketBody(const boost::system::error_code&  error, size_t bytesTransfered, std::shared_ptr<char> packetBody)
+        void handlePacketBody(const boost::system::error_code&  error, size_t bytesTransfered, std::shared_ptr<char> packetHeader, std::shared_ptr<PacketHeader> currentHeader)
         {
             if (error)
             {
@@ -83,7 +90,7 @@ namespace network
                 return;
             }
 
-            if (bytesTransfered < currentHeader_.size())
+            if (bytesTransfered < currentHeader->size())
             {
                 std::cout << oroshi::common::utils::LogType::ERROR << "Invalid packet received: size of packet < size from header" << std::endl;
                 do_close();
@@ -91,14 +98,26 @@ namespace network
                 return;
             }
 
-            auto packet = std::make_tuple(std::move(currentHeader_), packetBody);
+            auto packet = std::make_tuple(currentHeader, packetHeader);
 
             auto status = PacketHandler::handle(packet);
 
-            socket_.async_receive(boost::asio::buffer(currentHeader_.data(), 6),
+            if (!status)
+            {
+                std::cout << oroshi::common::utils::LogType::ERROR << "Error while handling packet" << std::endl;
+                do_close();
+
+                return;
+            }
+
+            auto newPacketHeader = std::make_shared<PacketHeader>();
+
+            socket_.async_receive(boost::asio::buffer(currentHeader->data(), 6),
                                   std::bind(&NetworkClient<PacketHandler>::handlePacketHeader,
                                   this,
-                                  std::placeholders::_1, std::placeholders::_2));
+                                  std::placeholders::_1,
+                                  std::placeholders::_2,
+                                  newPacketHeader));
         }
 
         void do_close()
@@ -113,7 +132,6 @@ namespace network
         private:
         boost::asio::ip::tcp::socket socket_;
         boost::asio::io_service& ioService_;
-        PacketHeader currentHeader_;
     };
 
 }

@@ -23,7 +23,7 @@ namespace network
      * static bool handle(oroshi::common::network::Packet const & packet);
      */
 
-    template <class PacketHandler> class NetworkEngine
+    template <class PacketHandler, int threadCount = 1> class NetworkEngine
     {
         public:
         typedef oroshi::common::network::NetworkClient<PacketHandler> EngineNetworkClient;
@@ -53,9 +53,10 @@ namespace network
 
             startAccept();
 
-            // Let's start one worker thread.
-            // TODO: Add as much workers threads as possible (CPU core count ?)
-            workerThread_ = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
+            for (int i = 0; i < threadCount; ++i)
+            {
+                workerThread_ = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
+            }
         }
 
         void stop()
@@ -94,10 +95,7 @@ namespace network
          
         private:
         boost::asio::io_service ioService_;
-
-        // TODO: Maybe use a unique_ptr for this one ?
         std::shared_ptr<boost::asio::ip::tcp::acceptor> serverSocket_;
-
         std::vector<std::shared_ptr<EngineNetworkClient>> currentClients_;
         std::thread workerThread_;
     };
