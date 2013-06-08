@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <ctime>
 #include <iomanip>
+#include <iostream>
+
+#include "../network/packet.hpp"
 
 namespace oroshi
 {
@@ -53,7 +56,35 @@ namespace utils
         return t << "] ";
     }
 
-    // TODO: log a packet
+    template <class T> T& operator<<(T& t, oroshi::common::network::PacketHeader& packetHeader)
+    {
+        t << std::hex
+          << "command: " << packetHeader.command()
+          << "size: "    << packetHeader.size()
+          << "version: " << packetHeader.protocolVersion()
+          << std::endl;
+
+        return t;
+    }
+
+    template <class T> T& operator<<(T& t, oroshi::common::network::Packet& packet)
+    {
+        auto header  = std::get<0>(packet);
+        auto content = std::get<1>(packet);
+
+        // Logs the header.
+        t << *header;
+
+        // Logs the content.
+        for (u_int16_t i = 0; i < header->size(); ++i)
+        {
+            t << std::hex << content.get()[i];
+        }
+
+        t << std::endl;
+
+        return t;
+    }
 
 }
 }
