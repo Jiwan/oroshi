@@ -2,3 +2,4 @@ thirdparty/
 build/
 .*
 !/.gitignore
+oroshi.pro.user.*
