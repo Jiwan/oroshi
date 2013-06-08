@@ -20,7 +20,7 @@ namespace network
     /**
      * A PacketHandler must have the following methods:
      *
-     * static bool handle(oroshi::common::network::Packet const & packet);
+     * bool handle(oroshi::common::network::Packet const & packet);
      */
 
     template <class PacketHandler, int threadCount = 1> class NetworkEngine

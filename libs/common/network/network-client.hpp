@@ -15,8 +15,10 @@ namespace common
 namespace network
 {
 
-    template <class PacketHandler> class NetworkClient
+    template <class PacketHandler> class NetworkClient : private PacketHandler
     {
+        using PacketHandler::handle;
+
         public:
         NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
         {
@@ -100,7 +102,7 @@ namespace network
 
             auto packet = std::make_tuple(currentHeader, packetHeader);
 
-            auto status = PacketHandler::handle(packet);
+            auto status = handle(packet);
 
             if (!status)
             {

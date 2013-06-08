@@ -10,7 +10,7 @@ namespace login
     class LoginPacketHandler
     {
         public:
-        static bool handle(oroshi::common::network::Packet& packet);
+        bool handle(oroshi::common::network::Packet& packet);
     };
 
 }

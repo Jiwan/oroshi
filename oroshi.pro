@@ -18,7 +18,9 @@ HEADERS += \
     libs/common/network/network-client.hpp \
     libs/common/network/packet.hpp \
     libs/common/utils/log.hpp \
-    login/login-packet-handler.hpp
+    login/login-packet-handler.hpp \
+    libs/common/database/database-engine.h \
+    libs/common/network/packet-handler-helpers.h
 
 OTHER_FILES += \
     SConstruct \
