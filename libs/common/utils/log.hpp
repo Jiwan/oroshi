@@ -76,7 +76,7 @@ namespace utils
         t << *header;
 
         // Logs the content.
-        for (u_int16_t i = 0; i < header->size(); ++i)
+        for (uint16_t i = 0; i < header->size(); ++i)
         {
             t << std::hex << content.get()[i];
         }
