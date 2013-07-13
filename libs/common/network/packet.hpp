@@ -76,10 +76,10 @@ namespace network
             return size_;
         }
 
-		uint16_t bodySize()
-		{
-			return size_ - 6;
-		}
+        uint16_t bodySize()
+        {
+            return size_ - 6;
+        }
 
         uint16_t& command()
         {
@@ -106,46 +106,46 @@ namespace network
     };
 
     typedef std::tuple<std::shared_ptr<PacketHeader>, std::shared_ptr<char>> Packet;
-	
-	// Define a new boost "Source" concept for a packet.
-	class PacketSource : public io::source
-	{
-		public:
-		PacketSource(Packet& packet) : packet_(packet)
-		{
 
-		}
+    // Define a new boost "Source" concept for a packet.
+    class PacketSource : public io::source
+    {
+        public:
+        PacketSource(Packet& packet) : packet_(packet)
+        {
 
-		std::pair<char*, char*> input_sequence()
-		{
-			auto header = std::get<0>(packet_);
-			auto body   = std::get<1>(packet_);
+        }
 
-			auto sequence = std::make_pair(body.get(), body.get() + header->bodySize());
+        std::pair<char*, char*> input_sequence()
+        {
+            auto header = std::get<0>(packet_);
+            auto body   = std::get<1>(packet_);
 
-			return sequence;
-		}
+            auto sequence = std::make_pair(body.get(), body.get() + header->bodySize());
 
-		private:
-		Packet& packet_;
-	};
+            return sequence;
+        }
 
-	// Create a istream from this source.
-	typedef io::stream<PacketSource> InputPacketStream;
+        private:
+        Packet& packet_;
+    };
 
-	
-	/*
-	class PacketSink : public io::sink 
-	{
-		public:
+    // Create a istream from this source.
+    typedef io::stream<PacketSource> InputPacketStream;
 
-		std::streamsize write(const char* s, std::streamsize n) 
-		{
 
-		}
-	};
-	*/
-	
+    /*
+    class PacketSink : public io::sink 
+    {
+    public:
+
+    std::streamsize write(const char* s, std::streamsize n) 
+    {
+
+    }
+    };
+    */
+
 
 }
 }
