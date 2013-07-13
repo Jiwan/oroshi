@@ -15,24 +15,24 @@ namespace common
 namespace network
 {
 
-	/**
-	 * Here is how the receive loop roughly looks like.
-	 * Any error during each step will call do_close and stop the loop.
-	 * 
-	 *												  size > 0
-	 * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
-	 *			 ^                           | size == 0                                                                                   |
-	 *			 |===================== PacketCrypt::decrypt                                                                               |
-	 *           |                                                                                                                         |
-	 *           |=========================================================================================================================|
-	 */
+    /**
+    * Here is how the receive loop roughly looks like.
+    * Any error during each step will call do_close and stop the loop.
+    * 
+    *												  size > 0
+    * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
+    *			 ^                           | size == 0                                                                                   |
+    *			 |===================== PacketCrypt::decrypt                                                                               |
+    *            |                                                                                                                         |
+    *            |=========================================================================================================================|
+    */
 
     template <class PacketHandler, class PacketCrypt> class NetworkClient : private PacketHandler, private PacketCrypt
     {
         using PacketHandler::handle;
-		using PacketCrypt::decrypt;
+        using PacketCrypt::decrypt;
 
-        public:
+    public:
         NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
         {
 
@@ -44,7 +44,7 @@ namespace network
             boost::asio::ip::tcp::no_delay optionNoDelay(true);
             socket_.set_option(optionNoDelay);
 
-			startReceive();
+            startReceive();
         }
 
         void close()
@@ -57,18 +57,18 @@ namespace network
             return socket_;
         }
 
-        private:
+    private:
 
-		void startReceive()
-		{
-			 auto packetHeader = std::make_shared<PacketHeader>();
+        void startReceive()
+        {
+            auto packetHeader = std::make_shared<PacketHeader>();
 
             socket_.async_receive(boost::asio::buffer(packetHeader->data(), 6), bind(&NetworkClient::handlePacketHeader,
-                                                                                      this,
-                                                                                      std::placeholders::_1,
-                                                                                      std::placeholders::_2,
-                                                                                      packetHeader));
-		}
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                packetHeader));
+        }
 
         void handlePacketHeader(const boost::system::error_code& error, size_t bytesTransfered, std::shared_ptr<PacketHeader> packetHeader)
         {
@@ -88,31 +88,31 @@ namespace network
                 return;
             }
 
-			// Let's check if the packet have a body.
-			if (packetHeader->size())
-			{
+            // Let's check if the packet have a body.
+            if (packetHeader->size())
+            {
 
-				// Allocate memory for the incoming packet body.
-				std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
+                // Allocate memory for the incoming packet body.
+                std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
 
-				// Let's receive the packet body according to the header.
-				socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, PacketCrypt>::handlePacketBody,
-																									this,
-																									std::placeholders::_1,
-																									std::placeholders::_2,
-																									packetBody,
-																									packetHeader
-																									));
-			}
-			else
-			{
-				auto packet = std::make_tuple(packetHeader, std::shared_ptr<char>(nullptr));
+                // Let's receive the packet body according to the header.
+                socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, PacketCrypt>::handlePacketBody,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2,
+                    packetBody,
+                    packetHeader
+                    ));
+            }
+            else
+            {
+                auto packet = std::make_tuple(packetHeader, std::shared_ptr<char>(nullptr));
 
-				if (handlePacket(packet))
-				{
-					startReceive();
-				}	
-			}
+                if (handlePacket(packet))
+                {
+                    startReceive();
+                }	
+            }
         }
 
         void handlePacketBody(const boost::system::error_code&  error, size_t bytesTransfered, std::shared_ptr<char> packetBody, std::shared_ptr<PacketHeader> currentHeader)
@@ -134,29 +134,29 @@ namespace network
             }
 
             auto packet = std::make_tuple(currentHeader, packetBody);
-		
-			if (handlePacket(packet))
-			{
-				startReceive();
-			}			
+
+            if (handlePacket(packet))
+            {
+                startReceive();
+            }			
         }
 
-		bool handlePacket(Packet& packet)
-		{
-			// TODO: decrypt.
+        bool handlePacket(Packet& packet)
+        {
+            // TODO: decrypt.
 
-			decrypt(packet);
-			 
-			bool status = handle(packet);
+            decrypt(packet);
 
-			if (!status)
+            bool status = handle(packet);
+
+            if (!status)
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while handling packet" << std::endl;
                 do_close();
             }
 
-			return status;
-		}
+            return status;
+        }
 
         void do_close()
         {
@@ -167,7 +167,7 @@ namespace network
             std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Client socket closed" << std::endl;
         }
 
-        private:
+    private:
         boost::asio::ip::tcp::socket socket_;
         boost::asio::io_service& ioService_;
     };

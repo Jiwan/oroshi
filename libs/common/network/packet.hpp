@@ -130,21 +130,33 @@ namespace network
         Packet& packet_;
     };
 
-    // Create a istream from this source.
+    // Create an istream from this source.
     typedef io::stream<PacketSource> InputPacketStream;
 
-
-    /*
+    
+    
     class PacketSink : public io::sink 
     {
-    public:
+        public:
+        PacketSink(Packet& packet): packet_(packet)
+        {
+        
+        }
 
-    std::streamsize write(const char* s, std::streamsize n) 
-    {
+        std::streamsize write(const char* s, std::streamsize n) 
+        {
 
-    }
+        }
+
+        Packet packet()
+        {
+            
+        }
+
+        private:
+        Packet& packet_;
     };
-    */
+    
 
 
 }
