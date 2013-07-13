@@ -76,7 +76,7 @@ namespace utils
     template <class T> T& operator<<(T& t, oroshi::common::network::Packet& packet)
     {
         auto header  = std::get<0>(packet);
-        auto content = std::get<1>(packet);
+        auto body    = std::get<1>(packet);
 
         // Logs the header.
         t << *header;
@@ -84,7 +84,7 @@ namespace utils
         // Logs the content.
         for (uint16_t i = 0; i < header->size(); ++i)
         {
-            t << std::hex << content.get()[i];
+            t << std::hex << body.get()[i];
         }
 
         t << std::endl;

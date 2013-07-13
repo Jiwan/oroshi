@@ -89,25 +89,33 @@ namespace network
             }
 
 			// Let's check if the packet have a body.
-			if (!packetHeader->size())
+			if (packetHeader->size())
 			{
-				
+
+				// Allocate memory for the incoming packet body.
+				std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
+
+				// Let's receive the packet body according to the header.
+				socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, PacketCrypt>::handlePacketBody,
+																									this,
+																									std::placeholders::_1,
+																									std::placeholders::_2,
+																									packetBody,
+																									packetHeader
+																									));
 			}
+			else
+			{
+				auto packet = std::make_tuple(packetHeader, std::shared_ptr<char>(nullptr));
 
-            // Allocate memory for the incoming packet body.
-            std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
-
-            // Let's receive the packet body according to the header.
-            socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler>::handlePacketBody,
-                                                                                              this,
-                                                                                              std::placeholders::_1,
-                                                                                              std::placeholders::_2,
-                                                                                              packetBody,
-                                                                                              packetHeader
-                                                                                              ));
+				if (handlePacket(packet))
+				{
+					startReceive();
+				}	
+			}
         }
 
-        void handlePacketBody(const boost::system::error_code&  error, size_t bytesTransfered, std::shared_ptr<char> packetHeader, std::shared_ptr<PacketHeader> currentHeader)
+        void handlePacketBody(const boost::system::error_code&  error, size_t bytesTransfered, std::shared_ptr<char> packetBody, std::shared_ptr<PacketHeader> currentHeader)
         {
             if (error)
             {
@@ -125,7 +133,7 @@ namespace network
                 return;
             }
 
-            auto packet = std::make_tuple(currentHeader, packetHeader);
+            auto packet = std::make_tuple(currentHeader, packetBody);
 		
 			if (handlePacket(packet))
 			{

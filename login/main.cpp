@@ -4,6 +4,7 @@
 
 #include <common/network/network-engine.hpp>
 #include <common/utils/log.hpp>
+#include <common/network/basic-packet-crypt.hpp>
 
 #include "login-packet-handler.hpp"
 
@@ -14,7 +15,7 @@ int main(int argc, char* argv[])
 {
     std::cout << LogType::LOG_NORMAL << "Starting server..." << std::endl;
 
-    NetworkEngine<oroshi::login::LoginPacketHandler> engine;
+	NetworkEngine<oroshi::login::LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> engine;
 
     engine.start("127.0.0.1", 29000);
 
