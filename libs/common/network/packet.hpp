@@ -98,6 +98,9 @@ namespace network
     typedef std::tuple<std::shared_ptr<PacketHeader>, std::shared_ptr<char>> Packet;
 
 
+	/**
+	 * Faire une fonction template qui prend un Packet en paramètre et un ostream/istream et qui écrit dans le shared_ptr tout en incrémentant le size du packet
+	 */
 }
 }
 }

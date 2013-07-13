@@ -12,11 +12,11 @@ using namespace oroshi::common::utils;
 
 int main(int argc, char* argv[])
 {
-    std::cout << LogType::NORMAL << "Starting server..." << std::endl;
+    std::cout << LogType::LOG_NORMAL << "Starting server..." << std::endl;
 
-    NetworkEngine<oroshi::login::LoginPacketHandler> engine("127.0.0.1", 29000);
+    NetworkEngine<oroshi::login::LoginPacketHandler> engine;
 
-    engine.start();
+    engine.start("127.0.0.1", 29000);
 
     engine.stop();
     

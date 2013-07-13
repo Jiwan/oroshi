@@ -15,9 +15,22 @@ namespace common
 namespace network
 {
 
-    template <class PacketHandler> class NetworkClient : private PacketHandler
+	/**
+	 * Here is how the receive loop roughly looks like.
+	 * Any error during each step will call do_close and stop the loop.
+	 * 
+	 *												  size > 0
+	 * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
+	 *			 ^                           | size == 0                                                                                   |
+	 *			 |===================== PacketCrypt::decrypt                                                                               |
+	 *           |                                                                                                                         |
+	 *           |=========================================================================================================================|
+	 */
+
+    template <class PacketHandler, class PacketCrypt> class NetworkClient : private PacketHandler, private PacketCrypt
     {
         using PacketHandler::handle;
+		using PacketCrypt::decrypt;
 
         public:
         NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
@@ -31,13 +44,7 @@ namespace network
             boost::asio::ip::tcp::no_delay optionNoDelay(true);
             socket_.set_option(optionNoDelay);
 
-            auto packetHeader = std::make_shared<PacketHeader>();
-
-            socket_.async_receive(boost::asio::buffer(packetHeader->data(), 6), bind(&NetworkClient::handlePacketHeader,
-                                                                                      this,
-                                                                                      std::placeholders::_1,
-                                                                                      std::placeholders::_2,
-                                                                                      packetHeader));
+			startReceive();
         }
 
         void close()
@@ -51,11 +58,23 @@ namespace network
         }
 
         private:
+
+		void startReceive()
+		{
+			 auto packetHeader = std::make_shared<PacketHeader>();
+
+            socket_.async_receive(boost::asio::buffer(packetHeader->data(), 6), bind(&NetworkClient::handlePacketHeader,
+                                                                                      this,
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2,
+                                                                                      packetHeader));
+		}
+
         void handlePacketHeader(const boost::system::error_code& error, size_t bytesTransfered, std::shared_ptr<PacketHeader> packetHeader)
         {
             if (error)
             {
-                std::cout << oroshi::common::utils::LogType::ERROR << "Error while receiving a packet header: " << error << std::endl;
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while receiving a packet header: " << error << std::endl;
                 do_close();
 
                 return;
@@ -63,11 +82,17 @@ namespace network
 
             if (bytesTransfered < 6)
             {
-                std::cout << oroshi::common::utils::LogType::ERROR << "Invalid packet received: header size < 6" << std::endl;
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Invalid packet received: header size < 6" << std::endl;
                 do_close();
 
                 return;
             }
+
+			// Let's check if the packet have a body.
+			if (!packetHeader->size())
+			{
+				
+			}
 
             // Allocate memory for the incoming packet body.
             std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
@@ -86,7 +111,7 @@ namespace network
         {
             if (error)
             {
-                std::cout << oroshi::common::utils::LogType::ERROR << "Error while receiving a packet header: " << error << std::endl;
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while receiving a packet header: " << error << std::endl;
                 do_close();
 
                 return;
@@ -94,41 +119,44 @@ namespace network
 
             if (bytesTransfered < currentHeader->size())
             {
-                std::cout << oroshi::common::utils::LogType::ERROR << "Invalid packet received: size of packet < size from header" << std::endl;
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Invalid packet received: size of packet < size from header" << std::endl;
                 do_close();
 
                 return;
             }
 
             auto packet = std::make_tuple(currentHeader, packetHeader);
+		
+			if (handlePacket(packet))
+			{
+				startReceive();
+			}			
+        }
 
-            auto status = handle(packet);
+		bool handlePacket(Packet& packet)
+		{
+			// TODO: decrypt.
 
-            if (!status)
+			decrypt(packet);
+			 
+			bool status = handle(packet);
+
+			if (!status)
             {
-                std::cout << oroshi::common::utils::LogType::ERROR << "Error while handling packet" << std::endl;
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while handling packet" << std::endl;
                 do_close();
-
-                return;
             }
 
-            auto newPacketHeader = std::make_shared<PacketHeader>();
-
-            socket_.async_receive(boost::asio::buffer(currentHeader->data(), 6),
-                                  std::bind(&NetworkClient<PacketHandler>::handlePacketHeader,
-                                  this,
-                                  std::placeholders::_1,
-                                  std::placeholders::_2,
-                                  newPacketHeader));
-        }
+			return status;
+		}
 
         void do_close()
         {
-            std::cout << oroshi::common::utils::LogType::DEBUG << "Closing socket..." << std::endl;
+            std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "Closing socket..." << std::endl;
 
             socket_.close();
 
-            std::cout << oroshi::common::utils::LogType::NORMAL << "Client socket closed" << std::endl;
+            std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Client socket closed" << std::endl;
         }
 
         private:

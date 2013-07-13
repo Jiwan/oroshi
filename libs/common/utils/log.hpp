@@ -1,6 +1,12 @@
 #ifndef LOG_H
 #define LOG_H
 
+#ifdef _MSC_VER 
+#if (_MSC_VER >= 1700)
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+#endif
+
 #include <cstdint>
 #include <ctime>
 #include <iomanip>
@@ -17,10 +23,10 @@ namespace utils
 
     enum class LogType : uint8_t
     {
-        NORMAL = 0,
-        ERROR,
-        HACK,
-        DEBUG
+        LOG_NORMAL = 0,
+        LOG_ERROR,
+        LOG_HACK,
+        LOG_DEBUG
     };
 
     template <class T> T& operator<<(T& t, LogType type)
@@ -29,16 +35,16 @@ namespace utils
 
         switch (type)
         {
-            case LogType::NORMAL:
+            case LogType::LOG_NORMAL:
             t << "NORMAL";
             break;
-            case LogType::ERROR:
+            case LogType::LOG_ERROR:
             t << "ERROR";
             break;
-            case LogType::HACK:
+            case LogType::LOG_HACK:
             t << "HACK";
             break;
-            case LogType::DEBUG:
+            case LogType::LOG_DEBUG:
             t << "DEBUG";
             break;
         }
@@ -49,7 +55,7 @@ namespace utils
         char date[256];
         strftime(date, 256, "%c", local);
 
-        t << "| " << date;
+        t << " | " << date;
         // TODO: Wait for gcc to implements std::put_time
         // t << "| " << std::put_time(&local, "%c %Z");
 

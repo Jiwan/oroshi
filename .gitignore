@@ -1,5 +1,6 @@
 thirdparty/
 build/
+vs/
 .*
 !/.gitignore
 oroshi.pro.user.*

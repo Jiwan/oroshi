@@ -23,10 +23,10 @@ namespace network
      * bool handle(oroshi::common::network::Packet const & packet);
      */
 
-    template <class PacketHandler, int threadCount = 1> class NetworkEngine
+    template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine
     {
         public:
-        typedef oroshi::common::network::NetworkClient<PacketHandler> EngineNetworkClient;
+        typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt> EngineNetworkClient;
 
 
         public:
@@ -49,6 +49,8 @@ namespace network
 
         void start(boost::asio::ip::address const& address, unsigned short port)
         {
+			std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Server starting on interface: " << address.to_string() << " and port: " << port << std::endl;
+
             serverSocket_ = std::make_shared<boost::asio::ip::tcp::acceptor>(ioService_, boost::asio::ip::tcp::endpoint(address, port));
 
             startAccept();
@@ -80,13 +82,13 @@ namespace network
             {
                 if (!e)
                 {
-                     std::cout << oroshi::common::utils::LogType::NORMAL << "New client connected" << std::endl;
+                     std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "New client connected" << std::endl;
                      networkClient->start();
                      currentClients_.push_back(networkClient);
                 }
                 else
                 {
-                    std::cout << oroshi::common::utils::LogType::NORMAL << e << std::endl;
+                    std::cout << oroshi::common::utils::LogType::LOG_NORMAL << e << std::endl;
                 }
 
                 startAccept();
