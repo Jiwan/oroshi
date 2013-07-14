@@ -105,7 +105,28 @@ namespace network
         };
     };
 
-    typedef std::tuple<std::shared_ptr<PacketHeader>, std::shared_ptr<char>> Packet;
+    class Packet
+    {
+        public:
+        Packet(std::shared_ptr<PacketHeader> header, std::shared_ptr<char> body): header_(header), body_(body)
+        {
+
+        }
+
+        std::shared_ptr<PacketHeader> header()
+        {
+            return header_;
+        }
+
+        std::shared_ptr<char> body()
+        {
+            return body_;
+        }
+
+        private:
+        std::shared_ptr<PacketHeader> header_;
+        std::shared_ptr<char> body_;
+    };
 
     // Define a new boost "Source" concept for a packet.
     class PacketSource : public io::source
@@ -118,8 +139,8 @@ namespace network
 
         std::pair<char*, char*> input_sequence()
         {
-            auto header = std::get<0>(packet_);
-            auto body   = std::get<1>(packet_);
+            auto header = packet_.header();
+            auto body   = packet_.body();
 
             auto sequence = std::make_pair(body.get(), body.get() + header->bodySize());
 
@@ -134,10 +155,15 @@ namespace network
     typedef io::stream<PacketSource> InputPacketStream;
 
     
-    
+   /* 
     class PacketSink : public io::sink 
     {
         public:
+        PacketSink()
+        {
+
+        }
+
         PacketSink(Packet& packet): packet_(packet)
         {
         
@@ -154,10 +180,10 @@ namespace network
         }
 
         private:
-        Packet& packet_;
+        Packet packet_;
     };
     
-
+    */
 
 }
 }
