@@ -15,8 +15,8 @@ namespace network
 		public:
 		void decrypt(Packet& packet)
 		{
-			auto header = std::get<0>(packet);
-			auto body	= std::get<1>(packet);
+            auto header = packet.header();
+			auto body	= packet.body();
 
 			for (uint8_t i = 2; i < 6; ++i)
 			{

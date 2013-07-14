@@ -19,12 +19,12 @@ namespace network
     * Here is how the receive loop roughly looks like.
     * Any error during each step will call do_close and stop the loop.
     * 
-    *												  size > 0
+    *                                                  size > 0
     * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
-    *			 ^                           | size == 0                                                                                   |
-    *			 |===================== PacketCrypt::decrypt                                                                               |
-    *            |                                                                                                                         |
-    *            |=========================================================================================================================|
+    *             ^                           | size == 0                                                                                   |
+    *             |===================== PacketCrypt::decrypt                                                                               |
+    *             |                                                                                                                         |
+    *             |=========================================================================================================================|
     */
 
     template <class PacketHandler, class PacketCrypt> class NetworkClient : private PacketHandler, private PacketCrypt
@@ -96,7 +96,8 @@ namespace network
                 std::shared_ptr<char> packetBody(new char[packetHeader->size()], std::default_delete<char[]>());
 
                 // Let's receive the packet body according to the header.
-                socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, PacketCrypt>::handlePacketBody,
+                socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, 
+                    PacketCrypt>::handlePacketBody,
                     this,
                     std::placeholders::_1,
                     std::placeholders::_2,
@@ -106,12 +107,12 @@ namespace network
             }
             else
             {
-                auto packet = std::make_tuple(packetHeader, std::shared_ptr<char>(nullptr));
+                Packet packet(packetHeader, std::shared_ptr<char>(nullptr));
 
                 if (handlePacket(packet))
                 {
                     startReceive();
-                }	
+                }    
             }
         }
 
@@ -133,18 +134,16 @@ namespace network
                 return;
             }
 
-            auto packet = std::make_tuple(currentHeader, packetBody);
+            Packet packet(currentHeader, packetBody);
 
             if (handlePacket(packet))
             {
                 startReceive();
-            }			
+            }            
         }
 
         bool handlePacket(Packet& packet)
         {
-            // TODO: decrypt.
-
             decrypt(packet);
 
             bool status = handle(packet);
