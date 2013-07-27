@@ -16,16 +16,16 @@ namespace network
 {
 
     /**
-    * Here is how the receive loop roughly looks like.
-    * Any error during each step will call do_close and stop the loop.
-    * 
-    *                                                  size > 0
-    * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
-    *             ^                           | size == 0                                                                                   |
-    *             |===================== PacketCrypt::decrypt                                                                               |
-    *             |                                                                                                                         |
-    *             |=========================================================================================================================|
-    */
+     * Here is how the receive loop roughly looks like.
+     * Any error during each step will call doClose and stop the loop.
+     * 
+     *                                                  size > 0
+     * start ==> startReceive ==> handlePacketHeader =========> handlePacketBody =========> PacketCrypt::decrypt ========> PacketHandler::handle
+     *             ^                           | size == 0                                                                                   |
+     *             |===================== PacketCrypt::decrypt                                                                               |
+     *             |                                                                                                                         |
+     *             |=========================================================================================================================|
+     */
 
     template <class PacketHandler, class PacketCrypt> class NetworkClient : private PacketHandler, private PacketCrypt
     {
@@ -47,9 +47,14 @@ namespace network
             startReceive();
         }
 
+        void sendPacket(Packet packet)
+        {
+            // ioService_.post(bind(&NetworkClient::doSend, this, packet));
+        }
+
         void close()
         {
-            ioService_.post(bind(&NetworkClient::do_close, this));
+            ioService_.post(bind(&NetworkClient::doClose, this));
         }
 
         boost::asio::ip::tcp::socket& socket()
@@ -58,7 +63,6 @@ namespace network
         }
 
     private:
-
         void startReceive()
         {
             auto packetHeader = std::make_shared<PacketHeader>();
@@ -75,7 +79,7 @@ namespace network
             if (error)
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while receiving a packet header: " << error << std::endl;
-                do_close();
+                doClose();
 
                 return;
             }
@@ -83,13 +87,13 @@ namespace network
             if (bytesTransfered < 6)
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Invalid packet received: header size < 6" << std::endl;
-                do_close();
+                doClose();
 
                 return;
             }
 
             // Let's check if the packet have a body.
-            if (packetHeader->size())
+            if (packetHeader->bodySize())
             {
 
                 // Allocate memory for the incoming packet body.
@@ -121,7 +125,7 @@ namespace network
             if (error)
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while receiving a packet header: " << error << std::endl;
-                do_close();
+                doClose();
 
                 return;
             }
@@ -130,7 +134,7 @@ namespace network
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Invalid packet received: size of packet body < size from header" << std::endl;
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Announced: " << currentHeader->bodySize() << ", real: " << bytesTransfered << std::endl;
-                do_close();
+                doClose();
 
                 return;
             }
@@ -152,13 +156,13 @@ namespace network
             if (!status)
             {
                 std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while handling packet" << std::endl;
-                do_close();
+                doClose();
             }
 
             return status;
         }
 
-        void do_close()
+        void doClose()
         {
             std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "Closing socket..." << std::endl;
 

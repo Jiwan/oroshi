@@ -66,8 +66,8 @@ namespace utils
     {
         t << std::hex
           << "command: " << packetHeader.command()
-          << "size: "    << packetHeader.size()
-          << "version: " << packetHeader.protocolVersion()
+          << " size: "    << packetHeader.size()
+          << " version: " << packetHeader.protocolVersion()
           << std::endl;
 
         return t;
@@ -82,7 +82,7 @@ namespace utils
         t << *header;
 
         // Logs the content.
-        for (uint16_t i = 0; i < header->size(); ++i)
+        for (uint16_t i = 0; i < header->bodySize(); ++i)
         {
             t << std::hex << body.get()[i];
         }
