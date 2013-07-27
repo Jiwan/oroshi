@@ -23,7 +23,7 @@ namespace network
      * bool handle(oroshi::common::network::Packet const & packet);
      */
 
-    template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine
+    template <class PacketHandler, class PacketCrypt, int threadCount> class NetworkEngine
     {
         public:
         typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt> EngineNetworkClient;
@@ -61,6 +61,21 @@ namespace network
             }
         }
 
+        void removeClient(EngineNetworkClient& client)
+        {
+            for (auto it = currentClients_.begin(); it != currentClients_.end(); )
+            {
+                if ((*it).get() == &client)
+                {
+                    it = currentClients_.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+        }
+
         void stop()
         {
             workerThread_.join();
@@ -76,7 +91,7 @@ namespace network
         {
             // Start the accept chain.
 
-            auto networkClient = std::make_shared<EngineNetworkClient>(ioService_);
+            auto networkClient = std::make_shared<EngineNetworkClient>(ioService_, *this);
 
             serverSocket_->async_accept(networkClient->socket(), [this, networkClient] (const boost::system::error_code& e)
             {

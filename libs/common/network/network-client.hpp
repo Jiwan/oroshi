@@ -14,6 +14,7 @@ namespace common
 {
 namespace network
 {
+    template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine;
 
     /**
      * Here is how the receive loop roughly looks like.
@@ -27,13 +28,16 @@ namespace network
      *             |=========================================================================================================================|
      */
 
-    template <class PacketHandler, class PacketCrypt> class NetworkClient : private PacketHandler, private PacketCrypt
+    template <class PacketHandler, class PacketCrypt> class NetworkClient : 
+        private PacketHandler, 
+        private PacketCrypt, 
+        public std::enable_shared_from_this<NetworkClient<PacketHandler, PacketCrypt>>
     {
         using PacketHandler::handle;
         using PacketCrypt::decrypt;
 
     public:
-        NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
+        NetworkClient(boost::asio::io_service& ioService, NetworkEngine<PacketHandler, PacketCrypt>& engine): ioService_(ioService), socket_(ioService), engine_(engine)
         {
 
         }
@@ -151,7 +155,7 @@ namespace network
         {
             decrypt(packet);
 
-            bool status = handle(packet);
+            bool status = handle(packet, shared_from_this());
 
             if (!status)
             {
@@ -162,16 +166,40 @@ namespace network
             return status;
         }
 
+        void doSend(Packet packet)
+        {
+            auto header = boost::asio::buffer(packet.header(), 6);
+            auto body   = boost::asio::buffer(packet.body(), packet.header()->bodySize());
+
+            auto total = header + body;
+
+            socket_.async_send(total, bind(&Network::handleSendedPacket, this));
+        }
+
+        void handleSendedPacket(const boost::system::error_code& error, std::size_t /*length*/)
+        {
+            if (error)
+            {
+                std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Error while sending a packet" << error << std::endl;
+                doClose();
+
+                return;
+            }
+        }
+
         void doClose()
         {
             std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "Closing socket..." << std::endl;
 
             socket_.close();
 
+            engine_.removeClient(*this);
+
             std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Client socket closed" << std::endl;
         }
 
     private:
+        NetworkEngine<PacketHandler, PacketCrypt>& engine_;
         boost::asio::ip::tcp::socket socket_;
         boost::asio::io_service& ioService_;
     };
