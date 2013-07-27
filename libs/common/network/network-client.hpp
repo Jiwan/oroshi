@@ -14,8 +14,6 @@ namespace common
 {
 namespace network
 {
-    template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine;
-
     /**
      * Here is how the receive loop roughly looks like.
      * Any error during each step will call doClose and stop the loop.
@@ -35,9 +33,12 @@ namespace network
     {
         using PacketHandler::handle;
         using PacketCrypt::decrypt;
+    
+    public:
+        typedef NetworkClient<PacketHandler, PacketCrypt> ThisType; 
 
     public:
-        NetworkClient(boost::asio::io_service& ioService, NetworkEngine<PacketHandler, PacketCrypt>& engine): ioService_(ioService), socket_(ioService), engine_(engine)
+        NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
         {
 
         }
@@ -64,6 +65,11 @@ namespace network
         boost::asio::ip::tcp::socket& socket()
         {
             return socket_;
+        }
+
+        void onCloseEvent(std::function<void(ThisType& client)>& f)
+        {
+            onCloseEvent_ = f;
         }
 
     private:
@@ -193,15 +199,19 @@ namespace network
 
             socket_.close();
 
-            engine_.removeClient(*this);
+            if (onCloseEvent_)
+            {
+                // Let's notice the engine that we closed the communication with the client.
+                onCloseEvent_(*this);
+            }
 
             std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Client socket closed" << std::endl;
         }
 
-    private:
-        NetworkEngine<PacketHandler, PacketCrypt>& engine_;
+        private:
         boost::asio::ip::tcp::socket socket_;
         boost::asio::io_service& ioService_;
+        std::function<void(ThisType& client)> onCloseEvent_;
     };
 
 }
