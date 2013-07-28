@@ -154,37 +154,50 @@ namespace network
     // Create an istream from this source.
     typedef io::stream<PacketSource> InputPacketStream;
 
-    
-   /* 
-    class PacketSink : public io::sink 
+    class PacketSink
     {
         public:
-        PacketSink()
+        PacketSink(uint16_t command) : size_(0), command_(command)
         {
 
         }
 
-        PacketSink(Packet& packet): packet_(packet)
+        template<class T> PacketSink& operator<<(T const & t) 
         {
-        
-        }
+            const char* data = reinterpret_cast<const char*>(&t);
 
-        std::streamsize write(const char* s, std::streamsize n) 
-        {
+            for (uint16_t i = 0; i < sizeof(T); ++i)
+            {
+                data_.push_back(data[i]);
+            }
+                
+            size_ += sizeof(T);
 
+            return *this;
         }
 
         Packet packet()
         {
+            auto header = std::shared_ptr<PacketHeader>(new PacketHeader());
+            header->command() = command_;
+            header->size() = size_ + 6;
             
+            auto body = std::shared_ptr<char>(new char[size_]);
+            std::memcpy(body.get(), data_.data(), size_);
+
+            return Packet(header, body);
+        }
+
+        uint16_t& command()
+        {
+            return command_;
         }
 
         private:
-        Packet packet_;
+        std::vector<char> data_;
+        uint16_t size_;
+        uint16_t command_;
     };
-    
-    */
-
 }
 }
 }

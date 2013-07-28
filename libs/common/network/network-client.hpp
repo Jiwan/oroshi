@@ -54,7 +54,7 @@ namespace network
 
         void sendPacket(Packet packet)
         {
-            // ioService_.post(bind(&NetworkClient::doSend, this, packet));
+             // ioService_.post(bind(&NetworkClient::doSend, this, packet));
         }
 
         void close()

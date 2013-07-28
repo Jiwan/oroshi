@@ -84,7 +84,7 @@ namespace utils
         // Logs the content.
         for (uint16_t i = 0; i < header->bodySize(); ++i)
         {
-            t << std::hex << body.get()[i];
+            t << std::hex << static_cast<uint32_t>(static_cast<uint8_t>(body.get()[i]));
         }
 
         t << std::endl;
