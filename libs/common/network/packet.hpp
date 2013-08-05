@@ -2,8 +2,9 @@
 #define PACKET_HPP
 
 #include <cstdint>
-#include <tuple>
 #include <memory>
+#include <tuple>
+#include <vector>
 
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
