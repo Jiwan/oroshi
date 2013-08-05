@@ -54,7 +54,7 @@ namespace network
 
         void sendPacket(Packet packet)
         {
-             // ioService_.post(bind(&NetworkClient::doSend, this, packet));
+             ioService_.post(bind(&NetworkClient::doSend, this, packet));
         }
 
         void close()
@@ -174,15 +174,23 @@ namespace network
 
         void doSend(Packet packet)
         {
-            auto header = boost::asio::buffer(packet.header(), 6);
-            auto body   = boost::asio::buffer(packet.body(), packet.header()->bodySize());
+            auto header = boost::asio::buffer(packet.header()->data(), 6);
+            auto body   = boost::asio::buffer(packet.body().get(), packet.header()->bodySize());
 
-            auto total = header + body;
+            std::vector<boost::asio::const_buffer> total;
 
-            socket_.async_send(total, bind(&Network::handleSendedPacket, this));
+            total.push_back(header);
+            total.push_back(body);
+
+            socket_.async_send(total, bind(&NetworkClient::handleSendedPacket, 
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                packet
+                ));
         }
 
-        void handleSendedPacket(const boost::system::error_code& error, std::size_t /*length*/)
+        void handleSendedPacket(const boost::system::error_code& error, std::size_t /*length*/, Packet pack)
         {
             if (error)
             {
