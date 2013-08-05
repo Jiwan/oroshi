@@ -37,33 +37,23 @@ namespace network
 
         }
 
-        PacketHeader& operator=(PacketHeader const& other)
+        PacketHeader(PacketHeader&& other): size_(0), command_(0), protocolVersion_(OROSHI_PROTOCOL_VERSION)
         {
-            if (this != &other)
-            {
-                size_            = other.size_;
-                command_         = other.command_;
-                protocolVersion_ = other.protocolVersion_;
-            }
+            swap(other);
+        }
+
+        PacketHeader& operator=(PacketHeader other)
+        {
+            swap(other);
 
             return *this;
         }
 
-        PacketHeader(PacketHeader&& other): size_(std::move(other.size_)), command_(std::move(other.command_)), protocolVersion_(std::move(other.protocolVersion_))
+        void swap(PacketHeader& other)
         {
-            // Note: Actually, std::move isn't necessary for these types (but who know what a PacketHeader will contain later)
-        }
-
-        PacketHeader& operator=(PacketHeader&& other)
-        {
-            if (this != &other)
-            {
-                size_            = std::move(other.size_);
-                command_         = std::move(other.command_);
-                protocolVersion_ = std::move(other.protocolVersion_);
-            }
-
-            return *this;
+            std::swap(size_, other.size_);
+            std::swap(command_, other.command_);
+            std::swap(protocolVersion_, protocolVersion_);
         }
 
         char* data()
