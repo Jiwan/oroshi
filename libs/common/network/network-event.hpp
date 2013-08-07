@@ -9,20 +9,20 @@
 
 namespace oroshi
 {
-namespace common
-{
-namespace network
-{
-    // Forward the children to event.
-    template <class Children> class NetworkEvent: Event<Children>
+    namespace common
     {
-        private:
-        std::shared_ptr<NetworkClient> client;
-        Packet packet;
-    };
+        namespace network
+        {
+            // Forward the children to event.
+            template <class Children> class NetworkEvent: Event<Children>
+            {
+            private:
+                std::shared_ptr<NetworkClient> client;
+                Packet packet;
+            };
 
-}
-}
+        }
+    }
 }
 
 #endif

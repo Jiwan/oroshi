@@ -11,37 +11,37 @@
 
 namespace oroshi
 {
-namespace login
-{
-
-    #define HANDLER_PARAMS oroshi::common::network::Packet& packet, std::shared_ptr<oroshi::common::network::NetworkClient<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt>> client
-
-    enum class LoginPacketType : std::uint16_t
+    namespace login
     {
-        ENCRYPTION_REQUEST = 0x703,
-        USER_LOGIN = 0x708,
-        GET_SERVER_LIST = 0x704,
-        GET_SERVER_IP = 0x70a,
-    };
 
-    class LoginPacketHandler
-    {
+        #define HANDLER_PARAMS oroshi::common::network::Packet& packet, std::shared_ptr<oroshi::common::network::NetworkClient<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt>> client
+
+        enum class LoginPacketType : std::uint16_t
+        {
+            ENCRYPTION_REQUEST = 0x703,
+            USER_LOGIN = 0x708,
+            GET_SERVER_LIST = 0x704,
+            GET_SERVER_IP = 0x70a,
+        };
+
+        class LoginPacketHandler
+        {
         private:
-        typedef oroshi::common::network::PacketHandlerTraits<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> ThisPacketHandler;
-        
+            typedef oroshi::common::network::PacketHandlerTraits<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> ThisPacketHandler;
+
         public:
-        LoginPacketHandler();
-        bool handle(HANDLER_PARAMS);
+            LoginPacketHandler();
+            bool handle(HANDLER_PARAMS);
 
         private:
-        bool handleEncryptionRequest(HANDLER_PARAMS);
-        bool handleUserLogin(HANDLER_PARAMS);
+            bool handleEncryptionRequest(HANDLER_PARAMS);
+            bool handleUserLogin(HANDLER_PARAMS);
 
         private:
             ThisPacketHandler::QuickMap handlersMap_;
-    };
+        };
 
-}
+    }
 }
 #endif // LOGINPACKETHANDLER_HPP
 

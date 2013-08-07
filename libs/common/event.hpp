@@ -5,16 +5,16 @@
 
 namespace oroshi
 {
-namespace common
-{
-    // This class use the Curiously recurring template pattern in order to avoid the cost of a virtual table.
-    template <class Children> class Event
+    namespace common
     {
-        uint8_t type()
+        // This class use the Curiously recurring template pattern in order to avoid the cost of a virtual table.
+        template <class Children> class Event
         {
-            return reinterpret_cast<Children *>(*this)->type();
-        }
-    };
-}
+            uint8_t type()
+            {
+                return reinterpret_cast<Children *>(*this)->type();
+            }
+        };
+    }
 }
 #endif

@@ -12,130 +12,130 @@
 
 namespace oroshi
 {
-namespace common
-{
-namespace network
-{
-
-    /**
-     * A PacketHandler must have the following methods:
-     *
-     * bool handle(oroshi::common::network::Packet const & packet);
-     */
-
-    template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine
+    namespace common
     {
-        public:
-        typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt> EngineNetworkClient;
-
-
-        public:
-        NetworkEngine() : serverSocket_(nullptr)
+        namespace network
         {
 
-        }
+            /**
+            * A PacketHandler must have the following methods:
+            *
+            * bool handle(oroshi::common::network::Packet const & packet);
+            */
 
-        void start()
-        {
-            start("127.0.0.1", 6666);
-        }
-
-        void start(std::string const& ip, unsigned short port)
-        {
-            auto address = boost::asio::ip::address::from_string(ip);
-
-            start(address, port);
-        }
-
-        void start(boost::asio::ip::address const& address, unsigned short port)
-        {
-			std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Server starting on interface: " << address.to_string() << " and port: " << port << std::endl;
-
-            serverSocket_ = std::make_shared<boost::asio::ip::tcp::acceptor>(ioService_, boost::asio::ip::tcp::endpoint(address, port));
-
-            startAccept();
-
-            for (int i = 0; i < threadCount; ++i)
+            template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine
             {
-                workerThread_ = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
-            }
-        }
+            public:
+                typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt> EngineNetworkClient;
 
-        void removeClient(EngineNetworkClient& client)
-        {
-            for (auto it = currentClients_.begin(); it != currentClients_.end(); )
-            {
-                if ((*it).get() == &client)
+
+            public:
+                NetworkEngine() : serverSocket_(nullptr)
                 {
-                    it = currentClients_.erase(it);
+
                 }
-                else
+
+                void start()
                 {
-                    ++it;
+                    start("127.0.0.1", 6666);
                 }
-            }
-        }
 
-        void stop()
-        {
-            workerThread_.join();
-        }
-
-        boost::asio::io_service& ioService()
-        {
-            return ioService_;
-        }
-
-        private:
-        void startAccept()
-        {
-            // Start the accept chain.
-
-            auto networkClient = std::make_shared<EngineNetworkClient>(ioService_);
-
-            serverSocket_->async_accept(networkClient->socket(), [this, networkClient] (const boost::system::error_code& e)
-            {
-                if (!e)
+                void start(std::string const& ip, unsigned short port)
                 {
-                     std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "New client connected" << std::endl;
-                     
-                     // Lambda that will handle the end of the communication between the engine and the client.
-                     networkClient->onCloseEvent(std::function<void(EngineNetworkClient& client)>([&](EngineNetworkClient& client) {
-                        for (auto it = currentClients_.begin(); it != currentClients_.end(); )
+                    auto address = boost::asio::ip::address::from_string(ip);
+
+                    start(address, port);
+                }
+
+                void start(boost::asio::ip::address const& address, unsigned short port)
+                {
+                    std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "Server starting on interface: " << address.to_string() << " and port: " << port << std::endl;
+
+                    serverSocket_ = std::make_shared<boost::asio::ip::tcp::acceptor>(ioService_, boost::asio::ip::tcp::endpoint(address, port));
+
+                    startAccept();
+
+                    for (int i = 0; i < threadCount; ++i)
+                    {
+                        workerThread_ = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
+                    }
+                }
+
+                void removeClient(EngineNetworkClient& client)
+                {
+                    for (auto it = currentClients_.begin(); it != currentClients_.end(); )
+                    {
+                        if ((*it).get() == &client)
                         {
-                            if ((*it).get() == &client)
-                            {
-                                it = currentClients_.erase(it);
-                            }
-                            else
-                            {
-                                ++it;
-                            }
+                            it = currentClients_.erase(it);
                         }
-                     }));
-
-
-                     networkClient->start();
-                     currentClients_.push_back(networkClient);
+                        else
+                        {
+                            ++it;
+                        }
+                    }
                 }
-                else
+
+                void stop()
                 {
-                    std::cout << oroshi::common::utils::LogType::LOG_NORMAL << e << std::endl;
+                    workerThread_.join();
                 }
 
-                startAccept();
-            });
-        }
-         
-        private:
-        boost::asio::io_service ioService_;
-        std::shared_ptr<boost::asio::ip::tcp::acceptor> serverSocket_;
-        std::vector<std::shared_ptr<EngineNetworkClient>> currentClients_;
-        std::thread workerThread_;
-    };
+                boost::asio::io_service& ioService()
+                {
+                    return ioService_;
+                }
 
-}
-}
+            private:
+                void startAccept()
+                {
+                    // Start the accept chain.
+
+                    auto networkClient = std::make_shared<EngineNetworkClient>(ioService_);
+
+                    serverSocket_->async_accept(networkClient->socket(), [this, networkClient] (const boost::system::error_code& e)
+                    {
+                        if (!e)
+                        {
+                            std::cout << oroshi::common::utils::LogType::LOG_NORMAL << "New client connected" << std::endl;
+
+                            // Lambda that will handle the end of the communication between the engine and the client.
+                            networkClient->onCloseEvent(std::function<void(EngineNetworkClient& client)>([&](EngineNetworkClient& client) {
+                                for (auto it = currentClients_.begin(); it != currentClients_.end(); )
+                                {
+                                    if ((*it).get() == &client)
+                                    {
+                                        it = currentClients_.erase(it);
+                                    }
+                                    else
+                                    {
+                                        ++it;
+                                    }
+                                }
+                            }));
+
+
+                            networkClient->start();
+                            currentClients_.push_back(networkClient);
+                        }
+                        else
+                        {
+                            std::cout << oroshi::common::utils::LogType::LOG_NORMAL << e << std::endl;
+                        }
+
+                        startAccept();
+                    });
+                }
+
+            private:
+                boost::asio::io_service ioService_;
+                std::shared_ptr<boost::asio::ip::tcp::acceptor> serverSocket_;
+                std::vector<std::shared_ptr<EngineNetworkClient>> currentClients_;
+                std::thread workerThread_;
+            };
+
+        }
+    }
 }
 
 #endif //NETWORKENGINE_HPP

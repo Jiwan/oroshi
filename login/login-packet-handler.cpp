@@ -15,7 +15,7 @@ LoginPacketHandler::LoginPacketHandler()
 {
     // !TODO: replace with initialization list when it is supported by mvc++.
     REGISTER_HANDLER(LoginPacketType::ENCRYPTION_REQUEST, handleEncryptionRequest)
-    REGISTER_HANDLER(LoginPacketType::USER_LOGIN, handleUserLogin)
+        REGISTER_HANDLER(LoginPacketType::USER_LOGIN, handleUserLogin)
 
 }
 
@@ -44,7 +44,7 @@ bool LoginPacketHandler::handle(HANDLER_PARAMS)
 
 bool LoginPacketHandler::handleEncryptionRequest(HANDLER_PARAMS)
 {
-    
+
     PacketSink outputStream(0x7ff);
 
     outputStream << static_cast<uint16_t>(0xaf02);
