@@ -19,6 +19,9 @@ namespace login
     enum class LoginPacketType : std::uint16_t
     {
         ENCRYPTION_REQUEST = 0x703,
+        USER_LOGIN = 0x708,
+        GET_SERVER_LIST = 0x704,
+        GET_SERVER_IP = 0x70a,
     };
 
     class LoginPacketHandler
@@ -32,6 +35,7 @@ namespace login
 
         private:
         bool handleEncryptionRequest(HANDLER_PARAMS);
+        bool handleUserLogin(HANDLER_PARAMS);
 
         private:
             ThisPacketHandler::QuickMap handlersMap_;

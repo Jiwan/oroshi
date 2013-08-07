@@ -15,6 +15,7 @@ LoginPacketHandler::LoginPacketHandler()
 {
     // !TODO: replace with initialization list when it is supported by mvc++.
     REGISTER_HANDLER(LoginPacketType::ENCRYPTION_REQUEST, handleEncryptionRequest)
+    REGISTER_HANDLER(LoginPacketType::USER_LOGIN, handleUserLogin)
 
 }
 
@@ -61,6 +62,12 @@ bool LoginPacketHandler::handleEncryptionRequest(HANDLER_PARAMS)
     auto cryptPacket = outputStream.packet();
 
     client->sendPacket(cryptPacket);
+
+    return true;
+}
+
+bool LoginPacketHandler::handleUserLogin(HANDLER_PARAMS)
+{
 
     return true;
 }
