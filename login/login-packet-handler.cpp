@@ -22,18 +22,22 @@ LoginPacketHandler::LoginPacketHandler()
 bool LoginPacketHandler::handle(HANDLER_PARAMS)
 {
 
-    std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "Received packet : ";
+    std::cout << LogType::LOG_DEBUG << "Received packet : ";
     std::cout << *packet.header();
 
     if (handlersMap_.find(packet.header()->command()) != handlersMap_.end())
     {
         auto handler = handlersMap_[packet.header()->command()];
 
-        handler(packet, client);
+        if (!handler(packet, client))
+        {
+            std::cout << LogType::LOG_ERROR << "Packet wrongly handled" << std::endl;
+            std::cout << *packet.header();
+        }
     }
     else
     {
-        std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "No handler found for this packet : ";
+        std::cout << LogType::LOG_DEBUG << "No handler found for this packet : ";
         std::cout << packet;
     }
 
@@ -73,8 +77,8 @@ bool LoginPacketHandler::handleUserLogin(HANDLER_PARAMS)
     auto password = inputStream.readFixedSizeString(32);
     auto account  = inputStream.readFixedSizeString(packet.header()->bodySize() - 32);
 
-    std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "account: " << account << std::endl;
-    std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "password: " << password << std::endl;
+    std::cout << LogType::LOG_DEBUG << "account: " << account << std::endl;
+    std::cout << LogType::LOG_DEBUG << "password: " << password << std::endl;
 
     return true;
 }
