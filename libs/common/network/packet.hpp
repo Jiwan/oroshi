@@ -123,11 +123,93 @@ namespace oroshi
             class PacketSource : public io::source
             {
             public:
-                PacketSource(Packet& packet) : packet_(packet)
+                PacketSource(Packet& packet) : packet_(packet), pos_(0)
                 {
 
                 }
 
+                template <class T> PacketSource& operator>>(T& t)
+                {
+
+                    if (pos_ + sizeof(T) > packet_.header()->bodySize())
+                    {
+                        throw std::length_error("Packet's end reached.");
+                    }
+
+                    t = *reinterpret_cast<T*>(packet_.body().get() + pos_);
+
+                    pos_ += sizeof(T);
+
+                    return *this;
+                }
+
+                template <> PacketSource& operator>>(std::string& s)
+                {
+                    char c;
+
+                    try
+                    {
+                        *this >> c;
+                    } 
+                    catch (std::length_error& error)
+                    {
+                        return *this;
+                    }
+
+                    while (c != '\0')
+                    {
+                        s += c;
+
+                         try
+                        {
+                            *this >> c;
+                        }
+                        catch (std::length_error& error)
+                        {
+                            break;
+                        }
+                    }
+
+                    return *this;
+                }
+
+                template <class T> T read()
+                {
+                    T val;
+
+                    *this >> val;
+
+                    return val;
+                }
+
+                void readBuffer(void* buffer, uint16_t size)
+                {
+                    if (pos_ + size > packet_.header()->bodySize())
+                    {
+                        throw std::length_error("Packet's end reached.");
+                    }
+
+                    std::memcpy(buffer, packet_.body().get() + pos_, size);
+                }
+
+                std::string readFixedSizeString(uint16_t size)
+                {
+                    std::unique_ptr<char> buff(new char[size]);
+
+                    readBuffer(buff.get(), size);
+
+                    return std::string(buff.get(), size);
+                }
+
+                void seek(uint16_t pos)
+                {
+                    if (pos >= packet_.header()->bodySize())
+                    {
+                        throw std::out_of_range("The position is greater or equal of the size of the packet");
+                    }
+
+                    pos_ = pos;
+                }
                 std::pair<char*, char*> input_sequence()
                 {
                     auto header = packet_.header();
@@ -139,6 +221,9 @@ namespace oroshi
                 }
 
             private:
+
+            private:
+                uint16_t pos_;
                 Packet& packet_;
             };
 

@@ -17,8 +17,8 @@ namespace oroshi
             template <class Children> class NetworkEvent: Event<Children>
             {
             private:
-                std::shared_ptr<NetworkClient> client;
-                Packet packet;
+                std::shared_ptr<NetworkClient> client_;
+                Packet packet_;
             };
 
         }
