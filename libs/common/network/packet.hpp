@@ -67,7 +67,7 @@ namespace oroshi
                     return size_;
                 }
 
-                uint16_t bodySize()
+                uint16_t bodySize() const
                 {
                     return size_ - 6;
                 }
@@ -151,7 +151,7 @@ namespace oroshi
                     {
                         *this >> c;
                     } 
-                    catch (std::length_error& error)
+                    catch (std::length_error& /*error*/)
                     {
                         return *this;
                     }
@@ -164,7 +164,7 @@ namespace oroshi
                         {
                             *this >> c;
                         }
-                        catch (std::length_error& error)
+                        catch (std::length_error& /*error*/)
                         {
                             break;
                         }
@@ -190,6 +190,8 @@ namespace oroshi
                     }
 
                     std::memcpy(buffer, packet_.body().get() + pos_, size);
+
+                    pos_ += size;
                 }
 
                 std::string readFixedSizeString(uint16_t size)

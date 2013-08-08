@@ -15,7 +15,7 @@ LoginPacketHandler::LoginPacketHandler()
 {
     // !TODO: replace with initialization list when it is supported by mvc++.
     REGISTER_HANDLER(LoginPacketType::ENCRYPTION_REQUEST, handleEncryptionRequest)
-        REGISTER_HANDLER(LoginPacketType::USER_LOGIN, handleUserLogin)
+    REGISTER_HANDLER(LoginPacketType::USER_LOGIN, handleUserLogin)
 
 }
 
@@ -42,7 +42,7 @@ bool LoginPacketHandler::handle(HANDLER_PARAMS)
     return true;
 }
 
-bool LoginPacketHandler::handleEncryptionRequest(HANDLER_PARAMS)
+bool LoginPacketHandler::handleEncryptionRequest(HANDLER_PARAMS) const
 {
 
     PacketSink outputStream(0x7ff);
@@ -68,6 +68,13 @@ bool LoginPacketHandler::handleEncryptionRequest(HANDLER_PARAMS)
 
 bool LoginPacketHandler::handleUserLogin(HANDLER_PARAMS)
 {
+    PacketSource inputStream(packet);
+
+    auto password = inputStream.readFixedSizeString(32);
+    auto account  = inputStream.readFixedSizeString(packet.header()->bodySize() - 32);
+
+    std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "account: " << account << std::endl;
+    std::cout << oroshi::common::utils::LogType::LOG_DEBUG << "password: " << password << std::endl;
 
     return true;
 }

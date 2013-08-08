@@ -140,7 +140,7 @@ namespace oroshi
                         return;
                     }
 
-                    if (bytesTransfered < currentHeader->size() - 6)
+                    if (static_cast<uint16_t>(bytesTransfered) < currentHeader->size() - 6)
                     {
                         std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Invalid packet received: size of packet body < size from header" << std::endl;
                         std::cout << oroshi::common::utils::LogType::LOG_ERROR << "Announced: " << currentHeader->bodySize() << ", real: " << bytesTransfered << std::endl;

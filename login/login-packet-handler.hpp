@@ -34,7 +34,7 @@ namespace oroshi
             bool handle(HANDLER_PARAMS);
 
         private:
-            bool handleEncryptionRequest(HANDLER_PARAMS);
+            bool handleEncryptionRequest(HANDLER_PARAMS) const;
             bool handleUserLogin(HANDLER_PARAMS);
 
         private:
