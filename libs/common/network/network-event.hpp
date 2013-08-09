@@ -2,6 +2,7 @@
 #define NETWORKEVENT_HPP
 
 #include <memory>
+#include <tuple>
 
 #include "../event.hpp"
 #include "network-client.hpp"
@@ -13,7 +14,10 @@ namespace oroshi
     {
         namespace network
         {
-            template <class PacketHandler, class PacketCrypt, class EventHandler = void> class NetworkEvent: EventHandler
+            // For std::tuple<>, see : http://stackoverflow.com/questions/16666871/is-empty-struct-defined-by-c-standard
+
+            template <class PacketHandler, class PacketCrypt, class EventHandler = void> class NetworkEvent:
+            std::conditional<std::is_same<EventHandler, void>::value, std::tuple<>, Event<EventHandler>>::type
             {
             public:
                 NetworkEvent(std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client): 
@@ -25,7 +29,6 @@ namespace oroshi
             private:
                 std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client_;
             };
-
         }
     }
 }
