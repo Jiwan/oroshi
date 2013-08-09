@@ -9,6 +9,8 @@
 #include <common/network/packet.hpp>
 #include <common/network/packet-handler.hpp>
 
+#include "login-core-engine.hpp"
+
 namespace oroshi
 {
     namespace login

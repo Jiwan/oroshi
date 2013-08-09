@@ -57,7 +57,9 @@ namespace oroshi
 
                     for (int i = 0; i < threadCount; ++i)
                     {
-                        workerThread_ = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
+                        auto workerThread = std::thread(std::bind(static_cast<std::size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &ioService_));
+
+                        workerThreads_.push_back(std::move(workerThread));
                     }
                 }
 
@@ -78,7 +80,10 @@ namespace oroshi
 
                 void stop()
                 {
-                    workerThread_.join();
+                    for (auto& workerThread : workerThreads_)
+                    {
+                        workerThread.join();
+                    }
                 }
 
                 boost::asio::io_service& ioService()
@@ -131,7 +136,7 @@ namespace oroshi
                 boost::asio::io_service ioService_;
                 std::shared_ptr<boost::asio::ip::tcp::acceptor> serverSocket_;
                 std::vector<std::shared_ptr<EngineNetworkClient>> currentClients_;
-                std::thread workerThread_;
+                std::vector<std::thread> workerThreads_;
             };
 
         }
