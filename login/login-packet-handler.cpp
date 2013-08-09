@@ -5,6 +5,8 @@
 
 #include <common/utils/log.hpp>
 
+#include "login-event.hpp"
+
 using namespace oroshi::login;
 using namespace oroshi::common::utils;
 using namespace oroshi::common::network;
@@ -79,6 +81,8 @@ bool LoginPacketHandler::handleUserLogin(HANDLER_PARAMS)
 
     std::cout << LogType::LOG_DEBUG << "account: " << account << std::endl;
     std::cout << LogType::LOG_DEBUG << "password: " << password << std::endl;
+
+    UserLoginEvent event(client, account, password);
 
     return true;
 }

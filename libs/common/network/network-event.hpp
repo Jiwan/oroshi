@@ -13,12 +13,17 @@ namespace oroshi
     {
         namespace network
         {
-            // Forward the children to event.
-            template <class Children> class NetworkEvent: Event<Children>
+            template <class PacketHandler, class PacketCrypt, class EventHandler = void> class NetworkEvent: EventHandler
             {
+            public:
+                NetworkEvent(std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client): 
+                    client_(client)
+                {
+
+                }
+
             private:
-                std::shared_ptr<NetworkClient> client_;
-                Packet packet_;
+                std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client_;
             };
 
         }
