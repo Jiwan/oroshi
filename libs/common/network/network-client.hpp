@@ -26,19 +26,22 @@ namespace oroshi
             *             |=========================================================================================================================|
             */
 
-            template <class PacketHandler, class PacketCrypt> class NetworkClient : 
+            template <class PacketHandler, class PacketCrypt, class CoreEngine> class NetworkClient : 
                 private PacketHandler, 
                 private PacketCrypt, 
-                public std::enable_shared_from_this<NetworkClient<PacketHandler, PacketCrypt>>
+                public std::enable_shared_from_this<NetworkClient<PacketHandler, PacketCrypt, CoreEngine>>
             {
                 using PacketHandler::handle;
                 using PacketCrypt::decrypt;
 
             public:
-                typedef NetworkClient<PacketHandler, PacketCrypt> ThisType; 
+                typedef NetworkClient<PacketHandler, PacketCrypt, CoreEngine> ThisType; 
 
             public:
-                NetworkClient(boost::asio::io_service& ioService): ioService_(ioService), socket_(ioService)
+                NetworkClient(boost::asio::io_service& ioService, CoreEngine& coreEngine):
+                    PacketHandler(coreEngine),
+                    ioService_(ioService), 
+                    socket_(ioService)
                 {
 
                 }
@@ -111,7 +114,7 @@ namespace oroshi
 
                         // Let's receive the packet body according to the header.
                         socket_.async_receive(boost::asio::buffer(packetBody.get(), packetHeader->size()), std::bind(&NetworkClient<PacketHandler, 
-                            PacketCrypt>::handlePacketBody,
+                            PacketCrypt, CoreEngine>::handlePacketBody,
                             this,
                             std::placeholders::_1,
                             std::placeholders::_2,

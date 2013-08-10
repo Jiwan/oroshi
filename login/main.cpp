@@ -10,16 +10,21 @@
 
 using namespace oroshi::common::network;
 using namespace oroshi::common::utils;
+using namespace oroshi::login;
+
+CurrentLoginCoreEngine gCoreEngine;
 
 int main(int argc, char* argv[])
 {
     std::cout << LogType::LOG_NORMAL << "Starting server..." << std::endl;
 
-    NetworkEngine<oroshi::login::LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> engine;
+    NetworkEngine<LoginPacketHandler, BasicPacketCrypt, CurrentLoginCoreEngine> networkEngine(gCoreEngine);
 
-    engine.start("127.0.0.1", 29000);
+    gCoreEngine.start();
+    networkEngine.start("127.0.0.1", 29000);
 
-    engine.stop();
+    networkEngine.stop();
+    gCoreEngine.stop();
 
     return EXIT_SUCCESS;
 }

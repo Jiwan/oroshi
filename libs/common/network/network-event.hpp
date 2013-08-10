@@ -16,18 +16,18 @@ namespace oroshi
         {
             // For std::tuple<>, see : http://stackoverflow.com/questions/16666871/is-empty-struct-defined-by-c-standard
 
-            template <class PacketHandler, class PacketCrypt, class EventHandler = void> class NetworkEvent:
+            template <class PacketHandler, class PacketCrypt, class CoreEngine, class EventHandler = void> class NetworkEvent:
             std::conditional<std::is_same<EventHandler, void>::value, std::tuple<>, Event<EventHandler>>::type
             {
             public:
-                NetworkEvent(std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client): 
+                NetworkEvent(std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt, CoreEngine>> client): 
                     client_(client)
                 {
 
                 }
 
             private:
-                std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt>> client_;
+                std::shared_ptr<NetworkClient<PacketHandler, PacketCrypt, CoreEngine>> client_;
             };
         }
     }

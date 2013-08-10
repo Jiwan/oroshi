@@ -5,15 +5,13 @@
 
 #include <common/utils/log.hpp>
 
-#include "login-event.hpp"
-
 using namespace oroshi::login;
 using namespace oroshi::common::utils;
 using namespace oroshi::common::network;
 
 #define REGISTER_HANDLER(x, y) handlersMap_[static_cast<uint16_t>(x)] = ThisPacketHandler::Type(std::bind(&LoginPacketHandler::y, this, std::placeholders::_1, std::placeholders::_2));
 
-LoginPacketHandler::LoginPacketHandler()
+LoginPacketHandler::LoginPacketHandler(CurrentLoginCoreEngine& coreEngine): coreEngine_(coreEngine)
 {
     // !TODO: replace with initialization list when it is supported by mvc++.
     REGISTER_HANDLER(LoginPacketType::ENCRYPTION_REQUEST, handleEncryptionRequest)
@@ -79,10 +77,9 @@ bool LoginPacketHandler::handleUserLogin(HANDLER_PARAMS)
     auto password = inputStream.readFixedSizeString(32);
     auto account  = inputStream.readFixedSizeString(packet.header()->bodySize() - 32);
 
-    std::cout << LogType::LOG_DEBUG << "account: " << account << std::endl;
-    std::cout << LogType::LOG_DEBUG << "password: " << password << std::endl;
-
     UserLoginEvent event(client, account, password);
+
+    dispatchEvent(event);
 
     return true;
 }

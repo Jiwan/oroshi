@@ -7,6 +7,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 
+#include "../core/core-engine.hpp"
 #include "./network-client.hpp"
 #include "../utils/log.hpp"
 
@@ -23,14 +24,14 @@ namespace oroshi
             * bool handle(oroshi::common::network::Packet const & packet);
             */
 
-            template <class PacketHandler, class PacketCrypt, int threadCount = 1> class NetworkEngine
+            template <class PacketHandler, class PacketCrypt, class CoreEngine, int threadCount = 1> class NetworkEngine
             {
             public:
-                typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt> EngineNetworkClient;
+                typedef oroshi::common::network::NetworkClient<PacketHandler, PacketCrypt, CoreEngine> EngineNetworkClient;
 
 
             public:
-                NetworkEngine() : serverSocket_(nullptr)
+                NetworkEngine(CoreEngine& coreEngine): serverSocket_(nullptr), coreEngine_(coreEngine)
                 {
 
                 }
@@ -96,7 +97,7 @@ namespace oroshi
                 {
                     // Start the accept chain.
 
-                    auto networkClient = std::make_shared<EngineNetworkClient>(ioService_);
+                    auto networkClient = std::make_shared<EngineNetworkClient>(ioService_, coreEngine_);
 
                     serverSocket_->async_accept(networkClient->socket(), [this, networkClient] (const boost::system::error_code& e)
                     {
@@ -137,6 +138,7 @@ namespace oroshi
                 std::shared_ptr<boost::asio::ip::tcp::acceptor> serverSocket_;
                 std::vector<std::shared_ptr<EngineNetworkClient>> currentClients_;
                 std::vector<std::thread> workerThreads_;
+                CoreEngine& coreEngine_;
             };
 
         }

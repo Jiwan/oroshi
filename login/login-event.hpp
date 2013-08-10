@@ -8,14 +8,17 @@
 #include <common/network/network-event.hpp>
 
 // Note: I am not sure if a forward declaration of LoginPacketHandler is necessary (a good old include could be enough).
-#include "login-packet-handler.hpp"
 
 namespace oroshi
 {
     namespace login
     {
-        typedef oroshi::common::network::NetworkEvent<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> LoginNetworkEvent;
-        typedef oroshi::common::network::NetworkClient<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt> LoginNetworkClient;
+        class LoginPacketHandler;
+        template <int threadCount> class LoginCoreEngine;
+        typedef LoginCoreEngine<2> CurrentLoginCoreEngine;
+
+        typedef oroshi::common::network::NetworkEvent<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt, CurrentLoginCoreEngine> LoginNetworkEvent;
+        typedef oroshi::common::network::NetworkClient<LoginPacketHandler, oroshi::common::network::BasicPacketCrypt, CurrentLoginCoreEngine> LoginNetworkClient;
 
         class UserLoginEvent: LoginNetworkEvent
         {
