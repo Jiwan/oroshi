@@ -21,8 +21,8 @@ namespace oroshi
             // All handler must have their events by value.
             void doHandle(UserLoginEvent event)
             {
-                    std::cout << LogType::LOG_DEBUG << "account: "  << event.account() << std::endl;
-                    std::cout << LogType::LOG_DEBUG << "password: " << event.password() << std::endl;
+                std::cout << LogType::LOG_DEBUG << "account: "  << event.account() << std::endl;
+                std::cout << LogType::LOG_DEBUG << "password: " << event.password() << std::endl;
             }
         };
     }
