@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{78C3D19D-31E5-43A7-85E4-03F7ABF7A8CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login", "login\login.vcxproj", "{A4AD1DCA-AC79-4937-BD03-C81AC4211027}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78C3D19D-31E5-43A7-85E4-03F7ABF7A8CF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{78C3D19D-31E5-43A7-85E4-03F7ABF7A8CF}.Debug|Win32.Build.0 = Debug|Win32
+		{78C3D19D-31E5-43A7-85E4-03F7ABF7A8CF}.Release|Win32.ActiveCfg = Release|Win32
+		{78C3D19D-31E5-43A7-85E4-03F7ABF7A8CF}.Release|Win32.Build.0 = Release|Win32
+		{A4AD1DCA-AC79-4937-BD03-C81AC4211027}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A4AD1DCA-AC79-4937-BD03-C81AC4211027}.Debug|Win32.Build.0 = Debug|Win32
+		{A4AD1DCA-AC79-4937-BD03-C81AC4211027}.Release|Win32.ActiveCfg = Release|Win32
+		{A4AD1DCA-AC79-4937-BD03-C81AC4211027}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

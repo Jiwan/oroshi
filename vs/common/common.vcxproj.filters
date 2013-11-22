@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{b1ca65b8-15e1-4573-83f9-dc86981ffdb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common\network">
+      <UniqueIdentifier>{301906a4-262b-4fbf-917c-d38168aaec90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{b805ce74-3ae5-4dc5-850b-2aa50c4932fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common\core">
+      <UniqueIdentifier>{80d95559-b5cc-4066-994b-5e2e83784ecb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\common\database\database-engine.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\network-client.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\network-engine.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\packet.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\utils\log.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\basic-packet-crypt.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\packet-handler.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\core\game-event.hpp">
+      <Filter>Header Files\common\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\network\network-event.hpp">
+      <Filter>Header Files\common\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\event.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\common\core\core-engine.hpp">
+      <Filter>Header Files\common\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
